@@ -1,0 +1,8 @@
+media/
+__pycache__/
+*.out
+*.log
+*.aux
+*.fls
+*.fdb*
+*.synctex*

@@ -1,0 +1,161 @@
+\documentclass[12pt]{article}
+\usepackage[T1]{fontenc} 
+\usepackage{multirow} 
+\usepackage{amsmath, graphicx, siunitx, pgfplots, physics}
+\usepackage{booktabs}
+\usepackage[czech]{babel} 
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{indentfirst}
+\usepackage{float} 
+\usepackage{appendix}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[a4paper,left=2cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
+
+\setlength{\heavyrulewidth}{1.8pt}
+\setlength{\lightrulewidth}{1.2pt} 
+\setlength{\parindent}{1cm}
+\setlength{\parindent}{24pt}
+\setlength{\parskip}{0em}
+
+% bibliography spacing
+\def\bstep{-0.2cm}
+
+% listing settings
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{python}{
+    %backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\small\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    morekeywords=
+    breakatwhitespace=false,         
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,                 
+    numbers=left,
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=tb,
+    inputencoding=utf8,
+    extendedchars=true
+}
+\lstset{style=python}
+
+\begin{document}
+	\begin{titlepage}
+		
+		\vspace*{1cm}
+		\begin{center} 
+			\begin{tabular}{ p{3.75cm} | p{8cm} p{2cm} }
+				\multicolumn{3}{c}{\Large \textbf{Protokol}} \\
+				
+				\toprule
+				
+				Instituce & Vysoká škola chemicko-technologická, Praha & \multirow{3}{=}[-0.1\baselineskip]{\centering \includegraphics[width=1.2cm, height=1.2cm]{logoVSCHT_ikona.png}} \\
+				
+				Fakulta & Fakulta chemicko-inženýrská & \\
+				
+				Katedra & Ústav fyzikální chemie (403) & \\
+				
+				Předmět & \multicolumn{2}{l}{Počítačová chemie} \\
+				
+				Kód předmětu & \multicolumn{2}{l}{B403011} \\
+				
+				\midrule 
+				
+				Kód projektu & \multicolumn{2}{l}{P07-DOPRAVA} \\
+				
+				Název projektu & \multicolumn{2}{l}{Dopravní zácpa} \\
+				
+				Datum vypracování & \multicolumn{2}{l}{30. 12. 2025} \\
+				
+				\midrule
+				
+				Jméno a přijmení & \multicolumn{2}{l}{Vít Večerník} \\
+				
+				Kruh & \multicolumn{2}{l}{359} \\
+				
+				\bottomrule 
+			\end{tabular}
+		\end{center}
+		
+	\end{titlepage}
+	
+	\section{Úvod}
+    Dopravní inženýrství a teorie dopravy se zabývají matematickým popisem chování různých vozidel na silnici. Jedním z nejvíce studovaných problémů v této oblasti je fantomová dopravní zácpa. Jedná se o situaci, kdy dojde ke zpomalení či zastavení provozu bez jednoznačné vnější příčiny, jako je např. dopravní nehoda či práce na silnici.
+
+    Fantomové zácpy vznikají v důsledku nelineárních interakcí mezi jednotlivými řidiči.
+    Jedná se o problém mnoha těles, kde jsou malé změny v rychlosti jednoho vozidla zesíleny reakcí ostatních vozidel.
+    Pokud je tok dopravy nestabilní, pak i malé přibrzdění vedoucího vozidla donutí řidiče v závěsu brzdit o něco intenzivněji, z důvodu reakčního času a snaze udržet bezpečný odstup.
+    Tento jev se šíří kolonou směrem dozadu a postupně narůstá až k úplnému zastavení vozidel~\cite{treiber2013}.
+    Výsledkem je tzv. “stop-and-go” vlna, která se prostorem šíří proti směru jízdy vozidel.
+
+    Jev fantomové dopravní zácpy byl experimentálně prokázán v kontrolovaných podmínkách~\cite{sugiyama2008}.
+    V klíčovém experimentu bylo na dráhu dlouhou 230 m umístěno 22 vozidel.
+    Každý řidič měl udržovat konstantní rychlost 30 km/h. Přestože na dráze nebyli žádné překážky.
+    Po krátké době došlo ke spontánnímu narušení plynulosti a vzniku shluku stojících vozidel, který putoval proti směru jízdy.
+    Experiment tedy potvrdil, že zácpy jsou inherentní vlastností dopravního toku při překročení určité kritické hustoty vozidel.
+
+    Pro simulaci tohoto chování se využívají tzv. mikroskopické modely dopravy, které popisují pohyb každého vozidla zvlášť.
+    To je v rozporu s makroskopickými modely, které simulují dopravu jako kontinuum vozidel a pro tento druh simulací se nehodí.
+    Nejčastěji využívanou skupinou jsou modely sledování vozidla (car-following model, CFM).
+    Ty jsou založeny na soustavě obyčejných diferenciálních rovnic, kde zrychlení vozidla je funkcí jeho rychlosti, vzdálenosti od vozidla před ním a rozdílu jejich rychlostí.
+    Každé vozidlo si chce udržet co nejkratší, ale zároveň bezpečnou vzdálenost od předešlého vozidla.
+
+    Jedním ze známých CFM je model optimální rychlosti (optimal velocity model, OMV) představený v~\cite{bando1995}.
+    Tento model zavádí funkci optimální rychlosti, která závisí výhradně na vzdálenosti mezi vozidly.
+    Přestože se jedná o relativně jednoduchý model, dokáže spolehlivě reprodukovat nestabilitu toku dopravy.
+
+    Další známý CFM je model chytrého řidiče (intelligent driver model, IDM) představený v~\cite{treiber2000}.
+    IDM je pokročilejší model, který bere v úvahu nejen snahu dosáhnou požadované rychlosti, ale také strategii brždění pro udržení bezpečného odstupu.
+    Produkuje realistické profily zrychlení a je standardem v dopravních simulacích.
+
+    Alternativou ke spojitým CFM jsou diskrétní modely celulárních automatů, např. model Nagel-Schreckenberg~\cite{nagel1992}.
+    Tyto modely rozdělují silnici a čas na diskrétní kroky a zavádí prvek náhody, který vytváří prvotní poruchy v homogenním toku.
+
+	
+	\section{Cíle}
+	Hlavním cílem projektu je vytvořit počítačovou simulaci silničního provozu, která demonstruje vznik fantomové dopravní zácpy vlivem malých náhodných změn jízdy v koloně.
+    Za tímto účelem byly stanoveny dílčí cíle práce:
+    \newpage
+    \begin{enumerate}
+        \item Vytvořit fyzikální model pohybu vozidla, který zahrnuje rovnoměrné zrychlení ke stanovené maximální rychlosti a logiku zpomalování v závislosti na vzdálenosti vozidla vpředu.
+        \item Zahrnutí lidského faktoru a náhody v podobě reakčního času, respektive náhodných změn rychlosti vozidla o malé hodnoty.
+        \item Implementace simulace v periodických okrajových podmínkách odpovídajích experimentu viz~\cite{sugiyama2008}.
+        \item Analýza vzniku kolon za různých počátečních podmínek a parametrů. Potvrzení, že při vhodném nastavení dojde ke spontannímu vzniku fantomové kolony.
+    \end{enumerate}
+
+	\section{Postup}
+    
+	\begin{lstlisting}
+        # Python code test
+        if x < 10:
+            print('x je mensi nez 10')
+    \end{lstlisting}
+	\section{Výsledky}
+	
+	\section{Závěr}
+
+    \begin{thebibliography}{9}
+        { \normalsize
+        
+        \bibitem{bando1995} BANDO, M.; K. HASEBE; A. NAKAYAMA; A. SHIBATA a Y. SUGIYAMA, 1995. Dynamical model of traffic congestion and numerical simulation. \textit{Physical Review E}. Online. 51(2), 1035–1042. Dostupné z: \url{https://doi.org/10.1103/PhysRevE.51.1035}
+        \bibitem{nagel1992} NAGEL, Kai a Michael SCHRECKENBERG, 1992. A cellular automaton model for freeway traffic. \textit{Journal de Physique I}. Online. 2, 2221. Dostupné z: \url{https://doi.org/10.1051/jp1:1992277}
+        \bibitem{sugiyama2008} SUGIYAMA, Yuki; Minoru FUKUI; Macoto KIKUCHI; Katsuya HASEBE; Akihiro NAKAYAMA; Katsuhiro NISHINARI; Shin-ichi TADAKI a Satoshi YUKAWA, 2008. Traffic jams without bottlenecks - experimental evidence for the physical mechanism of the formation of a jam. \textit{New Journal of Physics}. Online. 10, 33001. Dostupné z: \url{https://doi.org/10.1088/1367-2630/10/3/033001}
+        \bibitem{treiber2013} TREIBER, Martin, 2013. \textit{Traffic Flow Dynamics}. Online. ISBN 978-3-642-32459-8. Dostupné z: \url{https://doi.org/10.1007/978-3-642-32460-4}
+        \bibitem{treiber2000} TREIBER, Martin; Ansgar HENNECKE a Dirk HELBING, 2000. Congested traffic states in empirical observations and microscopic simulations. \textit{Physical Review E}. Online. 62(2), 1805–1824. Dostupné z: \url{https://doi.org/10.1103/PhysRevE.62.1805}
+        }
+    \end{thebibliography}
+	
+\end{document}
