@@ -5,55 +5,45 @@ import random
 class TrafficJamScene(Scene):
     def construct(self):
         # --- PARAMETERS ---
-        CIRCLE_CENTER = 3.0 * LEFT
-        TEXT_POS = 4.0 * RIGHT
+        CIRCLE_CENTER = 3.3 * LEFT
+        GRAPH_ORIGIN = 4.2 * RIGHT
 
         CAR_COUNT = 25
-        RADIUS = 3.66
+        RADIUS = 3.5
 
         SPEED_LIMIT = 3.6
-        ACCELERATION = 0.2
+        ACCELERATION = 0.8
 
-        BRAKING = 4.0
-        BUMPER_TO_BUMPER = 0.02
+        BRAKING = 8.0
+        BUMPER_TO_BUMPER = 0.1
         REACTION_TIME = 0.2
 
         HAZARD_FREQUENCY = 0.1
         HAZARD_CHANGE = 0.1
         TIME = 50
 
-        # --- DASHBOARD ---
-        def create_param_text(label, value, color=WHITE):
-            row = VGroup(
-                Text(label, font_size=24, color=color),
-                Text(str(value), font_size=24, color=color, font="Monospace")
-            ).arrange(RIGHT, buff=0.5)
-            return row
-
-        title = Text("Parameters", font_size=32, weight=BOLD).move_to(TEXT_POS + 3*UP)
-        underline = Line(LEFT, RIGHT, color=WHITE).next_to(title, DOWN).scale(0.8)
+        # --- SPACE-TIME DIAGRAM ---
         
-        param_group = VGroup(
-            create_param_text("Car Count:", CAR_COUNT),
-            create_param_text("Speed Limit:", f"{SPEED_LIMIT*10} m/s"),
-            create_param_text("Acceleration:", f"{ACCELERATION*10} m/s²"),
-            create_param_text("Reaction Time:", f"{REACTION_TIME*10} s"),
-            create_param_text("Still Distance:", f"{BUMPER_TO_BUMPER*10} m"),
-            create_param_text("Braking Default:", f"{BRAKING*10} m/s²"),
-            create_param_text("Hazard Frequency:", f"{HAZARD_FREQUENCY}"),
-            create_param_text("Speed Change:", f"{HAZARD_CHANGE}"),
-        ).arrange(DOWN, aligned_edge=LEFT, buff=0.4).next_to(underline, DOWN, buff=0.5)
+        graph_axes = Axes(
+            x_range=[0, 2*PI, PI/2],
+            y_range=[0, TIME, 5],
+            x_length=5,
+            y_length=5,
+            axis_config={"color": GRAY, "stroke_width": 2},
+            tips=False
+        ).move_to(GRAPH_ORIGIN)
         
-        full_panel = VGroup(title, underline, param_group)
-        full_panel.move_to(TEXT_POS)
+        x_label = graph_axes.get_x_axis_label("Position", edge=DOWN, direction=DOWN, buff=0.2)
+        y_label = graph_axes.get_y_axis_label("Time", edge=LEFT, direction=LEFT, buff=0.1).rotate(90*DEGREES)
         
-        self.add(full_panel)
+        graph_title = Text("Time-Space Diagram", font_size=24).next_to(graph_axes, UP)
+        
+        self.add(graph_axes, x_label, y_label, graph_title)
 
         # --- ROAD VISUALS ---
         road = Circle(radius=RADIUS, color=GREY, stroke_width=25, stroke_opacity=0.3)
         road.move_to(CIRCLE_CENTER)
-        #line = Circle(radius=RADIUS, color=WHITE, stroke_width=2, stroke_opacity=0.5)
-        #line.move_to(CIRCLE_CENTER)
+
         self.add(road)
 
         # --- OBJEKTY AUT ---
@@ -74,41 +64,53 @@ class TrafficJamScene(Scene):
 
         self.add(car_mobs)
 
+        plot_dots = VGroup()
+        self.add(plot_dots)
+
         # --- FYZIKÁLNÍ ENGINE ---
+        time_tracker = ValueTracker(0)
+        frame_tracker = ValueTracker(0)
+
         def update_sim(mob, dt):
-            
+            current_time = time_tracker.get_value()
+            time_tracker.increment_value(dt)
+
+            frames = frame_tracker.get_value()
+            frame_tracker.increment_value(1)
+            plot_frame = (int(frames) % 4 == 0)
+
             for i in range(CAR_COUNT):
                 angle, speed = car_state[i]
                 
                 next_i = (i + 1) % CAR_COUNT
-                angle_next, _ = car_state[next_i]
+                angle_next, speed_next = car_state[next_i]
                 
                 diff_angle = angle_next - angle
                 if diff_angle <= 0: diff_angle += 2 * PI
                 distance = diff_angle * RADIUS
                 
-                gap = max(0.01, distance - 0.2)
-                safe_distance = BUMPER_TO_BUMPER + (speed * REACTION_TIME)
+                gap = max(0.01, distance - 0.35)
 
-                if gap > safe_distance:
-                    if speed < SPEED_LIMIT:
-                        speed += ACCELERATION * dt
-                else:
-                    kinematic_req = (speed ** 2)/(2*safe_distance)
-                    ratio = safe_distance / gap
-                    panic_factor = np.exp(ratio-1)
-                    braking_force = kinematic_req * panic_factor
-                    braking_force = min(braking_force, 40.0)
-                    speed -= braking_force * dt
+                delta_v = speed - speed_next
                 
+                desired_gap = BUMPER_TO_BUMPER + (speed * REACTION_TIME) + (speed * delta_v) / (2*np.sqrt(ACCELERATION * BRAKING))
+
+                free_road = 1 - (speed / SPEED_LIMIT)**4
+                interaction = (desired_gap / gap)**2
+
+                idm_accel = ACCELERATION * (free_road - interaction)
+
+                speed += idm_accel * dt
+
                 if random.random() < (HAZARD_FREQUENCY * dt):
                     if random.random() < 0.5:
                         speed *= 1-HAZARD_CHANGE
                     else:
                         speed *= 1+HAZARD_CHANGE
                 
-                speed = max(0, min(speed, SPEED_LIMIT * 1.05))
-                
+                if speed < 0: speed = 0
+                if gap < 0.01: speed = 0
+
                 # --- DATA STORAGE ---
                 car_state[i][1] = speed
                 delta_angle = (speed / RADIUS) * dt
@@ -117,14 +119,22 @@ class TrafficJamScene(Scene):
                 
                 # --- VISUALS ---
                 mob[i].rotate(delta_angle, about_point=CIRCLE_CENTER)
-                
-                # Colors
+
                 norm_speed = speed / SPEED_LIMIT
                 if norm_speed < 0.5:
                     c = interpolate_color(RED, YELLOW, norm_speed * 2)
                 else:
                     c = interpolate_color(YELLOW, GREEN, (norm_speed - 0.5) * 2)
                 mob[i].set_color(c)
+
+                # --- PLOTTING ---
+                if current_time < TIME and plot_frame:
+                    if delta_angle < 1.0:
+                        dot_pos = graph_axes.c2p(car_state[i][0], current_time)
+                        
+                        plot_point = Square(side_length=0.04, stroke_width=0, fill_color=c, fill_opacity=0.8)
+                        plot_point.move_to(dot_pos)
+                        plot_dots.add(plot_point)
 
         car_mobs.add_updater(update_sim)
         self.wait(TIME)

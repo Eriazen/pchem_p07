@@ -34,7 +34,7 @@ class TrafficJamScene(Scene):
         ).move_to(GRAPH_ORIGIN)
         
         x_label = graph_axes.get_x_axis_label("Position", edge=DOWN, direction=DOWN, buff=0.2)
-        y_label = graph_axes.get_y_axis_label("Time", edge=LEFT, direction=LEFT, buff=0.2).rotate(90*DEGREES)
+        y_label = graph_axes.get_y_axis_label("Time", edge=LEFT, direction=LEFT, buff=0.1).rotate(90*DEGREES)
         
         graph_title = Text("Time-Space Diagram", font_size=24).next_to(graph_axes, UP)
         
@@ -83,7 +83,7 @@ class TrafficJamScene(Scene):
                 angle, speed = car_state[i]
                 
                 next_i = (i + 1) % CAR_COUNT
-                angle_next, _ = car_state[next_i]
+                angle_next, speed_next = car_state[next_i]
                 
                 diff_angle = angle_next - angle
                 if diff_angle <= 0: diff_angle += 2 * PI
