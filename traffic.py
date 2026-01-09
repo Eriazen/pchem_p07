@@ -14,12 +14,12 @@ class TrafficJamScene(Scene):
         SPEED_LIMIT = 3.6
         ACCELERATION = 0.8
 
-        BRAKING = 8.0
+        BRAKING = 4.0
         BUMPER_TO_BUMPER = 0.1
         REACTION_TIME = 0.2
 
-        HAZARD_FREQUENCY = 0.1
-        HAZARD_CHANGE = 0.1
+        HAZARD_FREQUENCY = 0.0
+        FLUCTUATION = 0.0
         TIME = 50
 
         # --- SPACE-TIME DIAGRAM ---
@@ -46,7 +46,7 @@ class TrafficJamScene(Scene):
 
         self.add(road)
 
-        # --- OBJEKTY AUT ---
+        # --- CAR OBJECTS ---
         # Data structure: [current_angle, speed, slowdown_magnitude]
         car_state = []
         car_mobs = VGroup()
@@ -54,7 +54,7 @@ class TrafficJamScene(Scene):
         for i in range(CAR_COUNT):
             start_angle = (2 * PI / CAR_COUNT) * i
             
-            car_symbol = RoundedRectangle(corner_radius=0.05, height=0.15, width=0.35, color=GREEN, fill_opacity=1)
+            car_symbol = RoundedRectangle(corner_radius=0.05, height=0.15, width=0.45, color=GREEN, fill_opacity=1)
             car_symbol.move_to(CIRCLE_CENTER + RADIUS * RIGHT)
             car_symbol.rotate(PI/2)
             car_symbol.rotate(start_angle, about_point=CIRCLE_CENTER)
@@ -67,7 +67,7 @@ class TrafficJamScene(Scene):
         plot_dots = VGroup()
         self.add(plot_dots)
 
-        # --- FYZIKÁLNÍ ENGINE ---
+        # --- PHYSICS ENGINE ---
         time_tracker = ValueTracker(0)
         frame_tracker = ValueTracker(0)
 
@@ -81,18 +81,18 @@ class TrafficJamScene(Scene):
 
             for i in range(CAR_COUNT):
                 angle, speed = car_state[i]
-                
+
                 next_i = (i + 1) % CAR_COUNT
                 angle_next, speed_next = car_state[next_i]
-                
+
                 diff_angle = angle_next - angle
                 if diff_angle <= 0: diff_angle += 2 * PI
                 distance = diff_angle * RADIUS
-                
-                gap = max(0.01, distance - 0.35)
+
+                gap = max(0.01, distance - 0.45)
 
                 delta_v = speed - speed_next
-                
+
                 desired_gap = BUMPER_TO_BUMPER + (speed * REACTION_TIME) + (speed * delta_v) / (2*np.sqrt(ACCELERATION * BRAKING))
 
                 free_road = 1 - (speed / SPEED_LIMIT)**4
@@ -102,11 +102,11 @@ class TrafficJamScene(Scene):
 
                 speed += idm_accel * dt
 
-                if random.random() < (HAZARD_FREQUENCY * dt):
-                    if random.random() < 0.5:
-                        speed *= 1-HAZARD_CHANGE
-                    else:
-                        speed *= 1+HAZARD_CHANGE
+                # if random.random() < (HAZARD_FREQUENCY * dt):
+                #     if random.random() < 0.5:
+                #         speed *= 1-FLUCTUATION
+                #     else:
+                #         speed *= 1+FLUCTUATION
                 
                 if speed < 0: speed = 0
                 if gap < 0.01: speed = 0
