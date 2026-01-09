@@ -1,0 +1,121 @@
+\section{Úvod}
+Dopravní inženýrství a teorie dopravního toku představují v dnešní době klíčové disciplíny, které mají přímý dopad na ekonomiku, ekologii i kvalitu života ve městech. S rostoucím počtem automobilů se stává optimalizace propustnosti silniční sítě nezbytností. Jedním z nejvíce studovaných a zároveň nejvíce frustrujících jevů v této oblasti je tzv. \textbf{fantomová dopravní zácpa} (anglicky \textit{phantom traffic jam}). Jedná se o situaci, kdy dojde k náhlému zpomalení či úplnému zastavení provozu bez jednoznačné vnější příčiny, jako je dopravní nehoda, zúžení vozovky či práce na silnici.
+
+Fantomové zácpy vznikají v důsledku nelineárních dynamických interakcí mezi jednotlivými řidiči. Z fyzikálního hlediska lze silniční provoz modelovat jako systém mnoha částic, kde jsou malé změny v rychlosti jednoho vozidla zesíleny reakcí ostatních vozidel. Pokud je hustota dopravního toku nízká, systém je stabilní a drobné fluktuace (např. mírné přibrzdění) se rychle utlumí. Pokud však hustota vozidel překročí určitou kritickou mez, systém se stává nestabilním. V tomto stavu i malé přibrzdění vedoucího vozidla donutí řidiče v závěsu brzdit o něco intenzivněji – a to z důvodu reakčního času a instinktivní snahy udržet bezpečný odstup.
+
+Tento jev se následně šíří kolonou směrem dozadu jako rázová vlna a amplituda brzdění postupně narůstá až k úplnému zastavení vozidel~\cite{treiber2013}. Výsledkem je vznik tzv. „stop-and-go“ vln, které se prostorem šíří proti směru jízdy vozidel. Zatímco auta se pohybují vpřed, zácpa jako taková „couvá“.
+
+Existenci tohoto jevu experimentálně potvrdili Sugiyama et al. v dnes již klasickém experimentu~\cite{sugiyama2008}.  Na kruhovou dráhu o délce 230 metrů bylo umístěno 22 vozidel. Řidiči dostali instrukci udržovat konstantní rychlost 30 km/h a bezpečný rozestup. Ačkoliv na dráze nebyla žádná překážka, po krátké době došlo ke spontánnímu narušení plynulosti. Vznikl shluk stojících vozidel (cluster), který putoval po kružnici opačným směrem. Tento experiment jasně prokázal, že zácpy jsou inherentní, emergentní vlastností dopravního toku při nasycení kapacity silnice.
+
+Pro počítačovou simulaci tohoto chování se využívají tzv. mikroskopické modely dopravy. Na rozdíl od makroskopických modelů, které na dopravu nahlížejí jako na proudění tekutiny (používajíce veličiny jako hustota toku a průměrná rychlost), mikroskopické modely popisují pohyb každého vozidla individuálně. Nejčastěji využívanou skupinou jsou modely sledování vozidla (car-following models, CFM). Ty jsou založeny na soustavě obyčejných diferenciálních rovnic, kde zrychlení vozidla je funkcí jeho aktuální rychlosti, vzdálenosti od vozidla před ním (gap) a rozdílu jejich rychlostí.
+
+Mezi historicky významné modely patří například model optimální rychlosti (Optimal Velocity Model, OVM) představený v práci Bando et al.~\cite{bando1995}, který definuje zrychlení na základě odchylky od ideální rychlosti pro daný rozestup. Modernějším a pro účely této práce zvoleným přístupem je model chytrého řidiče (Intelligent Driver Model, IDM)~\cite{treiber2000}. IDM vyniká tím, že produkuje velmi realistické profily zrychlení a brzdění, které odpovídají naměřeným datům z reálného provozu, a zároveň je matematicky konzistentní (např. nedochází v něm k záporným rychlostem či srážkám při realistických parametrech).
+
+\section{Cíle práce}
+Hlavním cílem tohoto projektu je vytvořit funkční počítačovou simulaci silničního provozu, která demonstruje vznik fantomové dopravní zácpy vlivem malých náhodných poruch v plynulosti jízdy. Projekt se zaměřuje na vizualizaci přechodu mezi volným tokem a kongescí.
+
+Dílčí cíle práce byly stanoveny následovně:
+\begin{enumerate}
+    \item \textbf{Implementace fyzikálního modelu:} Vytvořit v programovacím jazyce Python model pohybu vozidla založený na rovnicích IDM. Model musí zahrnovat akceleraci k požadované rychlosti na volné silnici a adaptivní brzdění v závislosti na situaci před vozidlem.
+    \item \textbf{Periodické okrajové podmínky:} Implementovat simulaci na uzavřeném okruhu (kružnici), což odpovídá experimentálnímu uspořádání Sugiyamy~\cite{sugiyama2008} a umožňuje studovat dlouhodobý vývoj systému bez nutnosti generovat nová vozidla.
+    \item \textbf{Stochastický prvek:} Zahrnout do deterministického modelu prvek náhody (šum v rychlosti), který simuluje nedokonalost lidského řízení a nepozornost, a který slouží jako spouštěč nestability.
+    \item \textbf{Vizualizace a analýza:} Vytvořit grafický výstup simulace v reálném čase a vygenerovat časoprostorový diagram (Space-Time diagram), na kterém bude možné pozorovat trajektorie jednotlivých vozidel a identifikovat zpětné šíření dopravní vlny.
+\end{enumerate}
+
+\section{Postup a metodika}
+
+Pro realizaci simulace byl zvolen programovací jazyk Python, konkrétně knihovna \textit{Manim} (Mathematical Animation Engine). Ačkoliv je tato knihovna primárně určena pro tvorbu matematických animací, její schopnost efektivně pracovat s 2D vektorovou grafikou a časovými osami ji činí vhodnou i pro vizualizaci kinematických úloh. Numerické výpočty zajišťuje knihovna \textit{NumPy}.
+
+\subsection{Matematický model (IDM)}
+Pohyb každého vozidla v simulaci, označeného indexem $\alpha$, je řízen soustavou diferenciálních rovnic v čase $t$. Základem je model Intelligent Driver Model (IDM)~\cite{treiber2000}. Tento model vypočítává okamžité zrychlení $\dot{v}_\alpha$ na základě tří proměnných:
+\begin{itemize}
+    \item $v_\alpha$: aktuální rychlost vozidla $\alpha$,
+    \item $s_\alpha$: čistá vzdálenost k vozidlu vpředu (nárazník-nárazník),
+    \item $\Delta v_\alpha$: rozdíl rychlostí ($v_\alpha - v_{\alpha-1}$), tj. rychlost přibližování.
+\end{itemize}
+
+Rovnice zrychlení má tvar superpozice dvou tendencí – snahy zrychlovat a nutnosti brzdit:
+\begin{equation}
+    \dot{v}_\alpha = a \left[ 1 - \left( \frac{v_\alpha}{v_{max}} \right)^4 - \left( \frac{s^*(v_\alpha, \Delta v_\alpha)}{s_\alpha} \right)^2 \right]
+\end{equation}
+
+První část rovnice, $a[1 - (v/v_{max})^4]$, popisuje tendenci řidiče zrychlovat na volné silnici s maximálním zrychlením $a$ směrem k cílové rychlosti $v_{max}$. Exponent 4 zajišťuje, že akcelerace klesá velmi pozvolna a k poklesu dojde až těsně před dosažením maximální rychlosti, což odpovídá reálnému chování.
+
+Druhá část, $-a(s^*/s)^2$, představuje brzdný člen. Klíčovou roli zde hraje tzv. \textbf{požadovaná dynamická vzdálenost} $s^*$, která je definována jako:
+\begin{equation}
+    s^*(v, \Delta v) = s_0 + v \cdot T + \frac{v \cdot \Delta v}{2\sqrt{a \cdot b}}
+\end{equation}
+Tento člen skládá ze tří složek:
+\begin{enumerate}
+    \item $s_0$: Minimální odstup v úplném klidu (v kódu parametr \texttt{BUMPER\_TO\_BUMPER}). Zabraňuje srážkám při nulové rychlosti.
+    \item $v \cdot T$: Bezpečná vzdálenost závislá na rychlosti a reakčním čase řidiče $T$ (\texttt{REACTION\_TIME}). Toto je implementace pravidla „dvou vteřin“.
+    \item $\frac{v \Delta v}{2\sqrt{ab}}$: Dynamický člen, který je aktivní pouze při přibližování k pomalejšímu vozidlu ($\Delta v > 0$). Tento člen zajišťuje „inteligentní“ brzdění s komfortní decelerací $b$, aby nedošlo k prudkému brzdění na poslední chvíli.
+\end{enumerate}
+
+
+\subsection{Implementace v kruhové topologii}
+Simulace probíhá na kružnici o poloměru $R = 3.5$ jednotek. Pozice vozidel jsou reprezentovány úhlem $\theta_\alpha \in [0, 2\pi)$. Pro výpočet vzdálenosti $s_\alpha$ mezi vozidlem $\alpha$ a vozidlem před ním ($\alpha-1$) musíme zohlednit periodicitu kruhu. V kódu je toto řešeno následovně:
+\begin{equation}
+    \Delta \theta = (\theta_{\alpha-1} - \theta_{\alpha}) \pmod{2\pi}
+\end{equation}
+Fyzická vzdálenost je poté $s_\alpha = \Delta \theta \cdot R - L_{car}$, kde $L_{car}$ je délka vozidla. Tato implementace zajišťuje, že poslední vozidlo v poli „vidí“ první vozidlo a systém se chová jako nekonečná kolona.
+
+\subsection{Numerická integrace a stochastický šum}
+Časový vývoj systému je řešen metodou Eulerovy integrace s fixním časovým krokem $\mathrm{d}t$. V každém kroku se nejprve vypočítají nová zrychlení pro všechna vozidla na základě jejich aktuálních stavů. Následně jsou aktualizovány rychlosti a pozice:
+\begin{align}
+    v_\alpha(t+\mathrm{d}t) &= v_\alpha(t) + \dot{v}_\alpha \cdot \mathrm{d}t \\
+    \theta_\alpha(t+\mathrm{d}t) &= \theta_\alpha(t) + \frac{v_\alpha(t)}{R} \cdot \mathrm{d}t
+\end{align}
+
+Aby došlo k narušení nestabilní rovnováhy (homogenního toku), je do systému zaveden prvek náhody. Bez něj by deterministický model IDM vedl k ustálení všech vozidel na stejné rychlosti a rozestupech. V každém kroku simulace je s pravděpodobností $P_{hazard}$ (\texttt{HAZARD\_FREQUENCY}) rychlost vozidla vynásobena faktorem $(1 \pm \delta)$, kde $\delta$ je míra fluktuace. Toto simuluje nepozornost řidiče, který neudržuje pedál plynu v dokonale stabilní poloze.
+
+\section{Výsledky}
+
+Simulace byla provedena s $N=25$ vozidly na okruhu, což odpovídá vysoké hustotě provozu. Parametry modelu byly nastaveny na realistické hodnoty: $a=0.8\,\text{m/s}^2$, $b=8.0\,\text{m/s}^2$ (vysoká hodnota pro krizové brzdění), $v_{max} \approx 13\,\text{m/s}$. Délka simulace byla 50 sekund.
+
+Analýzou průběhu simulace lze identifikovat tři odlišné fáze vývoje dopravního toku:
+
+\subsection{Fáze 1: Rozjezd a homogenní tok (0 -- 15 s)}
+Na začátku simulace všechna vozidla stojí. Po spuštění se kolona dává do pohybu. Díky členu $a[1 - (v/v_{max})^4]$ se vozidla snaží dosáhnout maximální rychlosti. V této fázi je tok relativně plynulý. Vozidla jsou rovnoměrně rozprostřena a jejich rychlosti rostou. Barevná vizualizace (v kódu závislá na poměru $v/v_{max}$) ukazuje přechod z červené do žluté a zelené barvy.
+
+\subsection{Fáze 2: Vznik nestability (15 -- 25 s)}
+Klíčový moment nastává, když hustota provozu a rychlost dosáhnou bodu, kdy systém ztrácí stabilitu. Vlivem stochastického šumu jedno z vozidel náhodně mírně zpomalí. V řídkém provozu by se tato porucha vyhladila. V hustém provozu však vozidlo za ním musí reagovat brzděním, aby zachovalo bezpečný odstup $s^*$ definovaný rovnicí (2).
+Vzhledem k reakční době a setrvačnosti modelu IDM je toto brzdění o něco prudší než původní zpomalení. Tím se zkrátí odstup pro další vozidlo v řadě, které musí brzdit ještě intenzivněji. Došlo k tzv. \textit{string instability} (nestabilitě řetězce).
+
+\subsection{Fáze 3: Propagace fantomové zácpy (> 25 s)}
+Malá porucha se transformuje do stabilní oblasti s téměř nulovou rychlostí. V simulaci je to jasně patrné jako shluk červených (stojících) vozidel, zatímco na opačné straně okruhu vozidla zrychlují (zelená barva).
+
+Nejzajímavějším výsledkem je analýza \textbf{časoprostorového diagramu} (Space-Time Diagram), který simulace generuje. 
+\begin{itemize}
+    \item Osa $x$ reprezentuje pozici na okruhu (úhel $0$ až $2\pi$).
+    \item Osa $y$ reprezentuje čas.
+\end{itemize}
+V diagramu jsou trajektorie vozidel viditelné jako čáry směřující zleva doprava (jak vozidla objíždějí okruh). V místě zácpy se tyto čáry zhušťují a stávají se vertikálními (vozidla stojí na místě).
+Klíčovým pozorováním je, že oblast zhuštění se v čase posouvá \textbf{doleva}, tedy proti směru osy $x$. To znamená, že samotná dopravní zácpa se pohybuje proti směru jízdy. Rychlost šíření této vlny $w$ je konstantní a charakteristická pro dané parametry modelu. V souladu s teorií platí $w \approx -15\,\text{km/h}$ pro typické silniční parametry.
+
+Simulace tak úspěšně reprodukovala jev, kdy vozidla vjíždějí do zácpy zezadu vysokou rychlostí, jsou donucena zastavit, chvíli čekají v koloně a následně z ní vyjíždějí vpředu. Zácpa se chová jako samostatný fyzikální objekt (soliton), který nezaniká, dokud se nesníží hustota provozu.
+
+\section{Závěry}
+
+V rámci tohoto projektu byla vytvořena a analyzována simulace fantomové dopravní zácpy s využitím modelu Intelligent Driver Model (IDM). Implementace v jazyce Python s grafickou knihovnou Manim umožnila nejen numerický výpočet, ale i názornou vizualizaci problému.
+
+Dosažené výsledky lze shrnout do několika bodů:
+\begin{enumerate}
+    \item Podařilo se úspěšně implementovat periodický model dopravy, který respektuje fyzikální omezení (zrychlení, brzdná dráha) i psychologické faktory (reakční doba, bezpečný odstup).
+    \item Simulace potvrdila, že pro vznik dopravní zácpy není nutná přítomnost vnější překážky (bottleneck). Při dostatečně vysoké hustotě provozu stačí minimální náhodná fluktuace rychlosti k vyvolání řetězové reakce brzdění.
+    \item Byla demonstrována klíčová vlastnost dopravních vln – jejich retrográdní pohyb. Místo kongesce se pohybuje proti směru toku vozidel, což odpovídá teoretickým předpokladům i reálným experimentálním datům.
+\end{enumerate}
+
+Model by bylo možné dále rozšířit o možnost změny jízdních pruhů (model MOBIL) nebo o heterogenní provoz (kombinace osobních a nákladních aut), což by pravděpodobně vedlo k ještě komplexnějším dynamickým jevům. Vypracovaný protokol a simulace slouží jako důkaz, že plynulost dopravy je křehký stav silně závislý na disciplíně řidičů a homogenitě jejich chování.
+
+\begin{thebibliography}{9}
+\bibitem{bando1995} BANDO, M.; K. HASEBE; A. NAKAYAMA; A. SHIBATA a Y. SUGIYAMA, 1995. Dynamical model of traffic congestion and numerical simulation. \textit{Physical Review E}. Online. 51(2), 1035–1042. Dostupné z: \url{https://doi.org/10.1103/PhysRevE.51.1035}
+
+\bibitem{nagel1992} NAGEL, Kai a Michael SCHRECKENBERG, 1992. A cellular automaton model for freeway traffic. \textit{Journal de Physique I}. Online. 2, 2221. Dostupné z: \url{https://doi.org/10.1051/jp1:1992277}
+
+\bibitem{sugiyama2008} SUGIYAMA, Yuki; Minoru FUKUI; Macoto KIKUCHI; Katsuya HASEBE; Akihiro NAKAYAMA; Katsuhiro NISHINARI; Shin-ichi TADAKI a Satoshi YUKAWA, 2008. Traffic jams without bottlenecks - experimental evidence for the physical mechanism of the formation of a jam. \textit{New Journal of Physics}. Online. 10, 33001. Dostupné z: \url{https://doi.org/10.1088/1367-2630/10/3/033001}
+
+\bibitem{treiber2013} TREIBER, Martin, 2013. \textit{Traffic Flow Dynamics}. Online. ISBN 978-3-642-32459-8. Dostupné z: \url{https://doi.org/10.1007/978-3-642-32460-4}
+
+\bibitem{treiber2000} TREIBER, Martin; Ansgar HENNECKE a Dirk HELBING, 2000. Congested traffic states in empirical observations and microscopic simulations. \textit{Physical Review E}. Online. 62(2), 1805–1824. Dostupné z: \url{https://doi.org/10.1103/PhysRevE.62.1805}
+\end{thebibliography}
