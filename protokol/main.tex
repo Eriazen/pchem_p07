@@ -78,7 +78,7 @@
 				
 				Název projektu & \multicolumn{2}{l}{Dopravní zácpa} \\
 				
-				Datum vypracování & \multicolumn{2}{l}{30. 12. 2025} \\
+				Datum vypracování & \multicolumn{2}{l}{09. 1. 2025} \\
 				
 				\midrule
 				
@@ -145,10 +145,10 @@
     Pohyb každého vozidla v simulaci $\alpha$ je řízen soustavou diferenciálních rovnic v čase $t$. Základem je model IDM~\cite{treiber2000}, který počítá okamžité zrychlení $\dot{v}_\alpha$ na základě aktualní rychlosti vozidla $v_\alpha$, vzdálenosti od vozidla vpředu $s_\alpha$ a rychlosti přibližování $\Delta v_\alpha = v_\alpha - v_{\alpha-1}$. Rovnice zrychlení je dána superpozicí snahy zrychlovat a nutnosti brzdit:
 
     \begin{equation}
-        \dot{v}_\alpha = a \left[ 1 - \left( \frac{v_\alpha}{v_{max}} \right)^4 - \left( \frac{s^*(v_\alpha, \Delta v_\alpha)}{s_\alpha} \right)^2 \right]
+        \dot{v}_\alpha = a \left[ 1 - \left( \frac{v_\alpha}{v_{\mathrm{max}}} \right)^4 - \left( \frac{s^*(v_\alpha, \Delta v_\alpha)}{s_\alpha} \right)^2 \right]
     \end{equation}
 
-    První část rovnice popisuje tendenci řidiče zrychlovat na volné silnici s maximálním zrychlením $a$ až k cílové rychlosti $v_{max}$. Exponent 4 zajišťuje pozvolný pokles zrychlení, ke kterému dochází až těsně před dosažením maximální rychlosti, což je v souladu s realným chováním.
+    První část rovnice popisuje tendenci řidiče zrychlovat na volné silnici s maximálním zrychlením $a$ až k cílové rychlosti $v_{\mathrm{max}}$. Exponent 4 zajišťuje pozvolný pokles zrychlení, ke kterému dochází až těsně před dosažením maximální rychlosti, což je v souladu s realným chováním.
 
     Druhá část rovnice představuje brzdný člen. Klíčovou roli zde hraje tzv. požadovaná dynamická vzdálenost $s^*$, která je definována jako:
     \begin{equation}
@@ -170,7 +170,7 @@
         \theta_\alpha(t+\mathrm{d}t) &= \theta_\alpha(t) + \frac{v_\alpha(t)}{R} \cdot \mathrm{d}t
     \end{align}
 
-    Aby došlo k narušení nestabilní rovnováhy, je do systému zaveden prvek náhody. Bez něj by deterministický model IDM vedl k ustálení všech vozidel na stejné rychlosti a rozestupech. V každém kroku simulace je s pravděpodobností $P_{h}$ rychlost vozidla vynásobena faktorem $(1 \pm \delta)$, kde $\delta$ je míra fluktuace. Tento prvek má za účel simulovat nepozornost řidiče, který má tendenci náhodně mírně zpomalovat či zrychlovat.
+    Aby došlo k narušení nestabilní rovnováhy, je do systému zaveden prvek náhody. Bez něj by deterministický model IDM vedl k ustálení všech vozidel na stejné rychlosti a rozestupech. V každém kroku simulace je s pravděpodobností $P_{n}$ rychlost vozidla vynásobena faktorem $(1 \pm \delta)$, kde $\delta$ je míra fluktuace. Tento prvek má za účel simulovat nepozornost řidiče, který má tendenci náhodně mírně zpomalovat či zrychlovat.
     
 	\section{Výsledky}
 	
@@ -185,12 +185,12 @@
 				\midrule
 				
                 Počet aut $N$ & 25\\
-                Maximální rychlost $v_{max}$ & \SI{36}{\meter\per\second}\\
+                Maximální rychlost $v_{\mathrm{max}}$ & \SI{36}{\meter\per\second}\\
 				Maximální zrychlení $a$ & \SI{8}{\meter\per\second\squared}\\
                 Brždění $b$ & \SI{40}{\meter\per\second\squared} \\
                 Minimální odstup $s_0$ & \SI{1}{\meter} \\
                 Reakční čas $T$ & \SI{2}{\second}\\
-                Pravděpodobnost nepozornosti $P_h$ & \SI{10}{\percent} \\
+                Pravděpodobnost nepozornosti $P_n$ & \SI{10}{\percent} \\
                 Hodnota fluktuace $\delta$ & \SI{10}{\percent} \\
 
 				\bottomrule
@@ -207,7 +207,7 @@
     \end{figure}
 
     \subsection{Rozjezd a stabilní provoz (0 až 15 \si{\second})}
-    Na začátku simulace všechna vozidla stojí. Po spuštění se kolona dává do pohybu. Díky členu $a[1 - (v/v_{max})^4]$ se vozidla snaží dosáhnout maximální rychlosti. V této fázi je provoz relativně plynulý. Vozidla jsou rovnoměrně rozprostřena a jejich rychlosti rostou. Vozidla byla pro snažší vizualizaci obarvena dle poměru jejich aktuální vůči maximalní rychlosti od červené po zelenou barvu viz Obr.~\ref{obr1}.
+    Na začátku simulace všechna vozidla stojí. Po spuštění se kolona dává do pohybu. Díky členu $a[1 - (v/v_{\mathrm{max}})^4]$ se vozidla snaží dosáhnout maximální rychlosti. V této fázi je provoz relativně plynulý. Vozidla jsou rovnoměrně rozprostřena a jejich rychlosti rostou. Vozidla byla pro snažší vizualizaci obarvena dle poměru jejich aktuální vůči maximalní rychlosti od červené po zelenou barvu viz Obr.~\ref{obr1}.
 
     \subsection{Vznik nestability (15 až 25 \si{\second})}
     V tento moment začne systém ztrácet stabilitu vlivem náhodnéhé změny rychlosti jednoho z vozidel. V řídkém provozu by se tato porucha vyhladila. V hustém provozu však vozidlo za ním musí reagovat brzděním, aby zachovalo bezpečný odstup $s^*$ definovaný v rovnici (2).
@@ -217,10 +217,9 @@
     Malá porucha postupně přejde do stabilní oblasti s téměř nulovou rychlostí. V simulaci je to jasně patrné jako shluk červených stojících vozidel, zatímco na opačné straně okruhu žlutá/zelená vozidla zrychlují.
 
     \subsection{Časoprostorový diagram}
-    Vhodným nástrojem pro vizualizaci je také časoprostorový diagram, který je generován v průběhu simulace viz Obr.~\ref{obr1}. Osa $x$ reprezentuje pozici na okruhu úhel $\theta_\alpha \in [0, 2\pi)$ $0$ až $2\pi$ a osa $y$ reprezentuje čas $t$.
+    Vhodným nástrojem pro vizualizaci je také časoprostorový diagram, který je generován v průběhu simulace viz Obr.~\ref{obr1}. Osa $x$ reprezentuje pozici na okruhu (úhel $\theta_\alpha \in [0, 2\pi)$) a osa $y$ reprezentuje čas $t$.
 
-    V diagramu jsou trajektorie vozidel viditelné jako čáry směřující zleva doprava. V místě zácpy se tyto čáry zhušťují a stávají se vertikálními, protože vozidla stojí na místě.
-    Lze pozorovat, že oblast zhuštění se v čase posouvá doleva, tedy proti směru osy $x$. To znamená, že samotná dopravní zácpa se pohybuje proti směru jízdy. Rychlost šíření této vlny $w$ je konstantní a charakteristická pro dané parametry modelu.
+    Lze trajektorie vozidel pozorovat jako čáry směřující zleva doprava. V místě zácpy se tyto čáry zahušťují a stávají se vertikálními, protože vozidla stojí na místě. Lze pozorovat, že oblast zahuštění se v čase posouvá doleva, tedy proti směru osy $x$. To znamená, že samotná dopravní zácpa se pohybuje proti směru jízdy. Rychlost šíření této vlny $w$ je konstantní a charakteristická pro dané parametry modelu.
 
 	\section{Závěr}
 
