@@ -131,15 +131,14 @@
 	Hlavním cílem projektu je vytvořit počítačovou simulaci silničního provozu, která demonstruje vznik fantomové dopravní zácpy vlivem malých náhodných změn jízdy v koloně.
     Za tímto účelem byly stanoveny dílčí cíle práce:
     \begin{enumerate}
-        \item Vytvořit fyzikální model pohybu vozidla, který zahrnuje rovnoměrné zrychlení ke stanovené maximální rychlosti a logiku zpomalování v závislosti na vzdálenosti a rychlosti vozidla vpředu.
-        \item Zahrnutí lidského faktoru a náhody v podobě reakčního času a náhodných změn rychlosti vozidla o malé hodnoty.
-        \item Implementace simulace v periodických okrajových podmínkách odpovídajích experimentu viz~\cite{sugiyama2008}.
+        \item Vytvoření fyzikálního modelu pohybu vozidla, který zahrnuje rovnoměrné zrychlení ke stanovené maximální rychlosti a logiku zpomalování v závislosti na vzdálenosti a rychlosti vozidla vpředu.
+        \item Zahrnutí lidského faktoru a náhody v podobě reakčního času a náhodných změn rychlosti vozidla o malé hodnoty a implementace simulace v periodických okrajových podmínkách odpovídajích experimentu viz~\cite{sugiyama2008}.
         \item Analýza vzniku kolon za různých počátečních podmínek a parametrů. Potvrzení, že při vhodném nastavení dojde ke spontannímu vzniku fantomové kolony.
     \end{enumerate}
 
 	\section{Postup}
 
-    Model simulace byl implementován v programovacím jazyce Python, konkrétně knihovně \textit{Manim} (Mathematical Animation Engine). Ačkoliv je tato knihovna primárně určena pro tvorbu matematických animací, její schopnost efektivně pracovat s 2D vektorovou grafikou a časovými osami ji činí vhodnou i pro vizualizaci kinematických úloh.
+    Model simulace byl implementován v programovacím jazyce Python, konkrétně knihovně \textit{Manim}~\cite{manim2025}. Ačkoliv je tato knihovna primárně určena pro tvorbu matematických animací, její schopnost efektivně pracovat s 2D vektorovou grafikou a časovými osami ji činí vhodnou i pro vizualizaci kinematických úloh.
 
     \subsection{Matematický model}
     Pohyb každého vozidla v simulaci $\alpha$ je řízen soustavou diferenciálních rovnic v čase $t$. Základem je model IDM~\cite{treiber2000}, který počítá okamžité zrychlení $\dot{v}_\alpha$ na základě aktualní rychlosti vozidla $v_\alpha$, vzdálenosti od vozidla vpředu $s_\alpha$ a rychlosti přibližování $\Delta v_\alpha = v_\alpha - v_{\alpha-1}$. Rovnice zrychlení je dána superpozicí snahy zrychlovat a nutnosti brzdit:
@@ -161,10 +160,10 @@
     \begin{equation}
         \Delta \theta = (\theta_{\alpha-1} - \theta_{\alpha}) \pmod{2\pi}
     \end{equation}
-    Fyzická vzdálenost je poté dána jako $s_\alpha = \Delta \theta \cdot R - L_{\alpha}$. Pro všechna vozidla byla uvažována průměrná délka $L_{\alpha} = \SI{4.5}{\meter}$. V této implementaci poslední vozidlo vždy navazuje na první a systém se chová jako nekonečná kolona.
+    Fyzická vzdálenost je poté dána jako $s_\alpha = \Delta \theta \cdot R - L_{\alpha}$. V této implementaci poslední vozidlo vždy navazuje na první a systém se chová jako nekonečná kolona.
 
-    \subsection{Numerická integrace a stochastický šum}
-    Časový vývoj systému je řešen metodou Eulerovy integrace s časovým krokem $\mathrm{d}t$. V každém kroku se nejprve vypočítají nová zrychlení pro všechna vozidla na základě jejich aktuálních stavů. Následně jsou aktualizovány rychlosti a pozice:
+    \subsection{Numerické řešení rovnic}
+    Časový vývoj systému je řešený metodou Eulerovy integrace s časovým krokem $\mathrm{d}t$. V každém kroku se nejprve vypočítají nová zrychlení pro všechna vozidla na základě jejich aktuálních stavů. Následně jsou aktualizovány rychlosti a pozice:
     \begin{align}
         v_\alpha(t+\mathrm{d}t) &= v_\alpha(t) + \dot{v}_\alpha \cdot \mathrm{d}t \\
         \theta_\alpha(t+\mathrm{d}t) &= \theta_\alpha(t) + \frac{v_\alpha(t)}{R} \cdot \mathrm{d}t
@@ -219,11 +218,11 @@
     \subsection{Časoprostorový diagram}
     Vhodným nástrojem pro vizualizaci je také časoprostorový diagram, který je generován v průběhu simulace viz Obr.~\ref{obr1}. Osa $x$ reprezentuje pozici na okruhu (úhel $\theta_\alpha \in [0, 2\pi)$) a osa $y$ reprezentuje čas $t$.
 
-    Lze trajektorie vozidel pozorovat jako čáry směřující zleva doprava. V místě zácpy se tyto čáry zahušťují a stávají se vertikálními, protože vozidla stojí na místě. Lze pozorovat, že oblast zahuštění se v čase posouvá doleva, tedy proti směru osy $x$. To znamená, že samotná dopravní zácpa se pohybuje proti směru jízdy. Rychlost šíření této vlny $w$ je konstantní a charakteristická pro dané parametry modelu.
+    Trajektorie vozidel lze pozorovat jako čáry směřující zleva doprava. V místě zácpy se tyto čáry zahušťují, protože vozidla stojí na místě. Oblast zahuštění se v čase posouvá doleva, tedy proti směru osy $x$. To znamená, že samotná dopravní zácpa se pohybuje proti směru jízdy. Rychlost šíření zácpy $w$ je konstantní a charakteristická pro dané parametry modelu.
 
 	\section{Závěr}
 
-    V rámci tohoto projektu byla vytvořena a analyzována simulace fantomové dopravní zácpy s využitím modelu IDM. Simulace byla implementována v jazyce Python s využitím knihovny \textit{Manim}, která umožnila jednoduchou a názornou vizualizaci problému.
+    V rámci tohoto projektu byla vytvořena a analyzována simulace fantomové dopravní zácpy s využitím modelu IDM. Simulace byla implementována v jazyce Python s využitím knihovny \textit{Manim}~\cite{manim2025}, která umožnila jednoduchou a názornou vizualizaci problému viz~\cite{source2025}.
 
     Podařilo se úspěšně implementovat periodický model dopravy simulující vznik fantomové zácpy, který zahrnuje fyzikální a psychologické faktory řízení. Simulace potrvdila, že pro vznik fantomové dopravní zácpy není nutný vnější zásah (např. zúžení vozovky). Při dostatečně vysoké hustotě stači pro vyvolání řetězové reakce minimální náhodná fluktuace rychlosti.
 
@@ -239,6 +238,8 @@
         \bibitem{sugiyama2008} SUGIYAMA, Yuki; Minoru FUKUI; Macoto KIKUCHI; Katsuya HASEBE; Akihiro NAKAYAMA; Katsuhiro NISHINARI; Shin-ichi TADAKI a Satoshi YUKAWA, 2008. Traffic jams without bottlenecks - experimental evidence for the physical mechanism of the formation of a jam. \textit{New Journal of Physics}. Online. 10, 33001. Dostupné z: \url{https://doi.org/10.1088/1367-2630/10/3/033001}
         \bibitem{treiber2013} TREIBER, Martin, 2013. \textit{Traffic Flow Dynamics}. Online. ISBN 978-3-642-32459-8. Dostupné z: \url{https://doi.org/10.1007/978-3-642-32460-4}
         \bibitem{treiber2000} TREIBER, Martin; Ansgar HENNECKE a Dirk HELBING, 2000. Congested traffic states in empirical observations and microscopic simulations. \textit{Physical Review E}. Online. 62(2), 1805–1824. Dostupné z: \url{https://doi.org/10.1103/PhysRevE.62.1805}
+        \bibitem{manim2025} The Manim Community Developers. (2025). Manim – Mathematical Animation Framework (Version v0.19.1) [Computer software]. \url{https://www.manim.community/}
+        \bibitem{source2025} Zdrojový kód simulace: \url{https://github.com/Eriazen/pchem_p07}
         }
     \end{thebibliography}
 	
