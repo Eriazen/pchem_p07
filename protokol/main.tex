@@ -95,10 +95,10 @@
 	\section{Úvod}
     Dopravní inženýrství a teorie dopravy se zabývají matematickým popisem chování různých vozidel na silnici. Jedním ze studovaných problémů v této oblasti je fantomová dopravní zácpa. Jedná se o situaci, kdy dojde ke zpomalení či zastavení provozu bez jednoznačné vnější příčiny, jako je např. dopravní nehoda či práce na silnici.
 
-    Fantomové dopravní zácpy vznikají v důsledku nelineárních interakcí mezi jednotlivými řidiči. Jedná se o problém mnoha těles, kde jsou malé změny v rychlosti jednoho vozidla zesíleny reakcí ostatních vozidel. Pokud je tok dopravy nestabilní, pak i malé přibrzdění vedoucího vozidla donutí řidiče v závěsu brzdit o něco intenzivněji, z důvodu reakčního času a snaze udržet bezpečný odstup. Tento jev se šíří kolonou směrem dozadu a postupně narůstá až k úplnému zastavení vozidel~\cite{treiber2013}. Výsledkem je tzv. vlna zastavení, která se prostorem šíří proti směru jízdy vozidel.
+    Fantomové dopravní zácpy vznikají v důsledku nelineárních interakcí mezi jednotlivými řidiči. Jedná se o problém mnoha těles, kde jsou malé změny v rychlosti jednoho vozidla zesíleny reakcí ostatních vozidel. Pokud je tok dopravy nestabilní, pak i malé přibrzdění vedoucího vozidla donutí řidiče v závěsu brzdit o něco intenzivněji, z důvodu reakčního času a snaze udržet bezpečný odstup. Tento jev se šíří kolonou směrem dozadu a postupně narůstá až k~úplnému zastavení vozidel~\cite{treiber2013}. Výsledkem je tzv. vlna zastavení, která se prostorem šíří proti směru jízdy vozidel.
 
     \subsection{Experimentální data}
-    Jev fantomové dopravní zácpy byl experimentálně prokázán v kontrolovaných podmínkách~\cite{sugiyama2008}. V klíčovém experimentu bylo na dráhu dlouhou \SI{230}{\meter} umístěno 22 vozidel. Každý řidič měl udržovat konstantní rychlost \SI{30}{\kilo \meter \per \hour}. Přestože na dráze nebyli žádné překážky, došlo po krátké době ke spontánnímu narušení plynulosti a vzniku shluku stojících vozidel, který putoval proti směru jízdy. Experiment tedy potvrdil, že fantomové dopravní zácpy jsou přirozenou vlastností dopravního toku, ke kterým dochází při překročení určité kritické hustoty vozidel na vozovce.
+    Jev fantomové dopravní zácpy byl experimentálně prokázán v kontrolovaných podmínkách~\cite{sugiyama2008}. V klíčovém experimentu bylo na dráhu dlouhou \SI{230}{\meter} umístěno 22 vozidel. Každý řidič měl udržovat konstantní rychlost \SI{30}{\kilo \meter \per \hour}. Přestože na dráze nebyly žádné překážky, došlo po krátké době ke spontánnímu narušení plynulosti a vzniku shluku stojících vozidel, který putoval proti směru jízdy. Experiment tedy potvrdil, že fantomové dopravní zácpy jsou přirozenou vlastností dopravního toku, ke kterým dochází při překročení určité kritické hustoty vozidel na vozovce.
 
     \subsection{Modely pro simulace dopravy}
     Pro simulaci tohoto chování se využívají tzv. mikroskopické modely dopravy, které popisují pohyb každého vozidla zvlášť. To je v rozporu s makroskopickými modely, které simulují dopravu jako kontinuum vozidel a pro tento druh simulací se nehodí. Nejčastěji využívanou skupinou jsou modely sledování vozidla (car-following model, CFM). Ty jsou založeny na soustavě obyčejných diferenciálních rovnic, kde zrychlení vozidla je funkcí jeho rychlosti, vzdálenosti od vozidla před ním a rozdílu jejich rychlostí. Každé vozidlo si chce udržet co nejkratší, ale zároveň bezpečnou vzdálenost od předešlého vozidla.
@@ -127,19 +127,19 @@
     Model simulace byl implementován v programovacím jazyce Python pomocí knihovny Manim~\cite{manim2025}. Ačkoliv je tato knihovna určena pro tvorbu matematických animací, její schopnost efektivně pracovat s 2D vektorovou grafikou a časovými osami ji činí vhodnou i pro vizualizaci kinematických úloh.
 
     \subsection{Matematický model}
-    Pohyb každého vozidla v simulaci $\alpha$ je řízen soustavou diferenciálních rovnic v čase $t$. Základem je model IDM~\cite{treiber2000}, který počítá okamžité zrychlení $\dot{v}_\alpha$ na základě aktualní rychlosti vozidla $v_\alpha$, vzdálenosti od vozidla vpředu $s_\alpha$ a rychlosti přibližování $\Delta v_\alpha = v_\alpha - v_{\alpha-1}$. Rovnice zrychlení je dána superpozicí snahy zrychlovat a nutnosti brzdit:
+    Pohyb každého vozidla v simulaci $\alpha$ je řízen soustavou diferenciálních rovnic v čase $t$. Základem je model IDM~\cite{treiber2000}, který počítá okamžité zrychlení $\dot{v}_\alpha$ na základě aktuální rychlosti vozidla $v_\alpha$, vzdálenosti od vozidla vpředu $s_\alpha$ a rychlosti přibližování $\Delta v_\alpha = v_\alpha - v_{\alpha-1}$. Rovnice zrychlení je dána superpozicí snahy zrychlovat a nutnosti brzdit:
 
     \begin{equation}
         \dot{v}_\alpha = a \left[ 1 - \left( \frac{v_\alpha}{v_{\mathrm{max}}} \right)^4 - \left( \frac{s^*(v_\alpha, \Delta v_\alpha)}{s_\alpha} \right)^2 \right]
     \end{equation}
 
-    První část rovnice popisuje tendenci řidiče zrychlovat na volné silnici s maximálním zrychlením $a$ až k cílové rychlosti $v_{\mathrm{max}}$. Exponent 4 zajišťuje pozvolný pokles zrychlení, ke kterému dochází až těsně před dosažením maximální rychlosti, což je v souladu s realným chováním.
+    První část rovnice popisuje tendenci řidiče zrychlovat na volné silnici s maximálním zrychlením $a$ až k cílové rychlosti $v_{\mathrm{max}}$. Exponent 4 zajišťuje pozvolný pokles zrychlení, ke kterému dochází až těsně před dosažením maximální rychlosti, což je v souladu s reálným chováním.
 
     Druhá část rovnice představuje brzdný člen. Klíčovou roli zde hraje tzv. požadovaná dynamická vzdálenost $s^*$, která je definována jako:
     \begin{equation}
         s^*(v, \Delta v) = s_0 + v \cdot T + \frac{v \cdot \Delta v}{2\sqrt{a \cdot b}}
     \end{equation}
-    První člen $s_0$ představuje minimální odstup v koloně. Člen $v \cdot T$ udává bezpečnou vzdálenost v závislosti na rychlosti $v$ a reakčním času řidiče $T$. Poslední člen zajišťuje \say{inteligentní} brždění, aby nedošlo k prudkému brždění na poslední chvíli.
+    První člen $s_0$ představuje minimální odstup v koloně. Člen $v \cdot T$ udává bezpečnou vzdálenost v~závislosti na rychlosti $v$ a reakčním času řidiče $T$. Poslední člen zajišťuje \uv{inteligentní} brždění, aby nedošlo k prudkému brždění na poslední chvíli.
 
     \subsection{Implementace kruhové topologie}
     Simulace probíhá na kružnici o poloměru $R$. Pozice vozidel jsou reprezentovány úhlem $\theta_\alpha \in [0, 2\pi)$. Pro výpočet vzdálenosti $s_\alpha$ mezi vozidlem $\alpha$ a vozidlem vpředu ($\alpha-1$) je nutné zohlednit periodicitu kruhu. V kódu je toto implementováno pomocí operátoru modulo:
@@ -155,7 +155,7 @@
         \theta_\alpha(t+\mathrm{d}t) &= \theta_\alpha(t) + \frac{v_\alpha(t)}{R} \cdot \mathrm{d}t
     \end{align}
 
-    Aby došlo k narušení nestabilní rovnováhy, je do systému zaveden prvek náhody. Bez něj by deterministický model IDM vedl k ustálení všech vozidel na stejné rychlosti a rozestupech. V každém kroku simulace je s pravděpodobností $P_{n}$ rychlost vozidla vynásobena faktorem $(1 \pm \delta)$, kde $\delta$ je míra fluktuace. Tento prvek má za účel simulovat nepozornost řidiče, který má tendenci náhodně mírně zpomalovat či zrychlovat.
+    Aby došlo k narušení nestabilní rovnováhy, je do systému zaveden prvek náhody. Bez něj by deterministický model IDM vedl k ustálení všech vozidel na stejné rychlosti a rozestupech. V~každém kroku simulace je s pravděpodobností $P_{n}$ rychlost vozidla vynásobena faktorem $(1 \pm \delta)$, kde $\delta$ je míra fluktuace. Tento prvek má za účel simulovat nepozornost řidiče, který má tendenci náhodně mírně zpomalovat či zrychlovat.
     
 	\section{Výsledky}
 	
@@ -187,7 +187,7 @@
 
     \begin{figure}
         \includegraphics[width=\textwidth]{sim.png}
-        \caption{Simulace v čase $t=\SI{50}{\second}$. Vlevo vozdila na okruhu. Vpravo časoprostorový diagram.}
+        \caption{Simulace v čase $t=\SI{50}{\second}$. Vlevo vozidla na okruhu. Vpravo časoprostorový diagram.}
         \label{obr1}
     \end{figure}
 
@@ -195,13 +195,13 @@
     Na začátku simulace všechna vozidla stojí. Po spuštění se kolona dává do pohybu. Díky členu $a[1 - (v/v_{\mathrm{max}})^4]$ se vozidla snaží dosáhnout maximální rychlosti. V této fázi je provoz relativně plynulý. Vozidla jsou rovnoměrně rozprostřena a jejich rychlosti rostou. Vozidla byla pro snažší vizualizaci obarvena dle poměru jejich aktuální vůči maximalní rychlosti od červené po zelenou barvu viz Obr.~\ref{obr1}.
 
     \subsection{Vznik nestability (15 až 25 \si{\second})}
-    V tento moment začne systém ztrácet stabilitu vlivem náhodné změny rychlosti jednoho z vozidel. V řídkém provozu by se tato porucha vyhladila. V hustém provozu však vozidlo za ním musí reagovat brzděním, aby zachovalo bezpečný odstup $s^*$ definovaný v rovnici (2). Vzhledem k reakční době a setrvačnosti modelu IDM je toto brzdění o něco prudší než původní zpomalení. Tím se zkrátí odstup pro další vozidlo v řadě, které musí brzdit ještě intenzivněji. Tím dochází k postupné propagaci a znásobení zpomalení pro zbytek dopravního toku.
+    V tento moment začne systém ztrácet stabilitu vlivem náhodné změny rychlosti jednoho z~vozidel. V řídkém provozu by se tato porucha vyhladila. V hustém provozu však vozidlo za ním musí reagovat brzděním, aby zachovalo bezpečný odstup $s^*$ definovaný v rovnici (2). Vzhledem k reakční době a setrvačnosti modelu IDM je toto brzdění o něco prudší než původní zpomalení. Tím se zkrátí odstup pro další vozidlo v řadě, které musí brzdit ještě intenzivněji. Tím dochází k postupné propagaci a znásobení zpomalení pro zbytek dopravního toku.
 
     \subsection{Propagace fantomové zácpy (25 až 50 \si{\second})}
     Malá porucha postupně přejde do stabilní oblasti s téměř nulovou rychlostí. V simulaci je to jasně patrné jako shluk červených stojících vozidel, zatímco na opačné straně okruhu žlutá/zelená vozidla zrychlují.
 
     \subsection{Časoprostorový diagram}
-    Vhodným nástrojem pro vizualizaci je také časoprostorový diagram, který je generován v průběhu simulace viz Obr.~\ref{obr1}. Osa $x$ reprezentuje pozici na okruhu (úhel $\theta_\alpha\in[0, 2\pi)$) a osa $y$ reprezentuje čas $t$.
+    Vhodným nástrojem pro vizualizaci je také časoprostorový diagram, který je generován v~průběhu simulace viz Obr.~\ref{obr1}. Osa $x$ reprezentuje pozici na okruhu (úhel $\theta_\alpha\in[0, 2\pi)$) a osa $y$ reprezentuje čas $t$.
 
     Trajektorie vozidel lze pozorovat jako čáry směřující zleva doprava. V místě zácpy se tyto čáry zahušťují, protože vozidla stojí na místě. Oblast zahuštění se v čase posouvá doleva, tedy proti směru osy $x$. To znamená, že samotná dopravní zácpa se pohybuje proti směru jízdy. Rychlost šíření zácpy $w$ je konstantní a charakteristická pro dané parametry modelu.
 
