@@ -18,8 +18,8 @@ class TrafficJamScene(Scene):
         BUMPER_TO_BUMPER = 0.1
         REACTION_TIME = 0.2
 
-        HAZARD_FREQUENCY = 0.0
-        FLUCTUATION = 0.0
+        HAZARD_FREQUENCY = 0.1
+        FLUCTUATION = 0.1
         TIME = 50
 
         # --- SPACE-TIME DIAGRAM ---
@@ -47,7 +47,7 @@ class TrafficJamScene(Scene):
         self.add(road)
 
         # --- CAR OBJECTS ---
-        # Data structure: [current_angle, speed, slowdown_magnitude]
+        # Data structure: [current_angle, speed]
         car_state = []
         car_mobs = VGroup()
 
@@ -102,11 +102,11 @@ class TrafficJamScene(Scene):
 
                 speed += idm_accel * dt
 
-                # if random.random() < (HAZARD_FREQUENCY * dt):
-                #     if random.random() < 0.5:
-                #         speed *= 1-FLUCTUATION
-                #     else:
-                #         speed *= 1+FLUCTUATION
+                if random.random() < (HAZARD_FREQUENCY * dt):
+                    if random.random() < 0.5:
+                        speed *= 1-FLUCTUATION
+                    else:
+                        speed *= 1+FLUCTUATION
                 
                 if speed < 0: speed = 0
                 if gap < 0.01: speed = 0
