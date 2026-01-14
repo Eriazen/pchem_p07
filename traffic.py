@@ -2,6 +2,8 @@ from manim import *
 import numpy as np
 import random
 
+random.seed(600)
+
 class TrafficJamScene(Scene):
     def construct(self):
         # --- PARAMETERS ---
@@ -18,8 +20,8 @@ class TrafficJamScene(Scene):
         BUMPER_TO_BUMPER = 0.1
         REACTION_TIME = 0.2
 
-        HAZARD_FREQUENCY = 0.1
-        FLUCTUATION = 0.1
+        HAZARD_FREQUENCY = 0.05
+        FLUCTUATION = 0.05
         TIME = 50
 
         # --- SPACE-TIME DIAGRAM ---
